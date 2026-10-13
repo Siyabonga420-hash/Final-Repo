@@ -1,0 +1,58 @@
+﻿package com.example.rentmate
+
+import android.content.Context
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object ApiClient {
+
+    private const val BASE_URL = "https://final-repo-rqvf.onrender.com/"
+
+    private lateinit var appContext: Context
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
+    private val authInterceptor = Interceptor { chain ->
+        val prefs = appContext.getSharedPreferences("rentmate_prefs", Context.MODE_PRIVATE)
+        val token = prefs.getString("auth_token", null)
+
+        val request = chain.request().newBuilder().apply {
+            if (!token.isNullOrEmpty()) {
+                addHeader("Authorization", "Bearer $token")
+            }
+        }.build()
+
+        chain.proceed(request)
+    }
+
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .build()
+    }
+
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val profileApi: ProfileApi by lazy { retrofit.create(ProfileApi::class.java) }
+    val authApi: AuthApi by lazy { retrofit.create(AuthApi::class.java) }
+    val householdApi: HouseholdApi by lazy { retrofit.create(HouseholdApi::class.java) }
+    val choreApi: ChoreApi by lazy { retrofit.create(ChoreApi::class.java) }
+    val groceryApi: GroceryApi by lazy { retrofit.create(GroceryApi::class.java) }
+
+    val mealApi: MealApi by lazy { retrofit.create(MealApi::class.java) }
+
+    val scheduleApi: ScheduleApi by lazy { retrofit.create(ScheduleApi::class.java) }
+
+    val billApi: BillApi by lazy { retrofit.create(BillApi::class.java) }
+}
+

@@ -4,3 +4,19 @@ node_modules/
 !.env.example
 rentmate-admin-credentials.txt
 *.log
+
+# Android
+android/.gradle/
+android/.idea/
+android/**/build/
+android/local.properties
+android/**/*.apk
+android/**/*.aab
+android/**/*.jks
+android/**/*.keystore
+android/google-services.json
+
+# Environment and secrets
+.env
+.env.*
+node_modules/
